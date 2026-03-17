@@ -15,8 +15,9 @@
 // Permissive hold only for space (NAV layer), not home row mods
 #define PERMISSIVE_HOLD_PER_KEY
 
-// Disable double-tap repeat for mod-taps
-#define QUICK_TAP_TERM 0
+// Enable tap-then-hold key repeat for mod-taps
+#define QUICK_TAP_TERM 175
+#define QUICK_TAP_TERM_PER_KEY
 
 // Performance optimizations for fast typing
 #define USB_POLLING_INTERVAL_MS 1
