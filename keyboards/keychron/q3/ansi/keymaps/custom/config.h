@@ -16,19 +16,28 @@
 
 #pragma once
 
-// Pascal Getreuer's recommended home row mods configuration
-// https://getreuer.info/posts/keyboards/achordion/index.html
-
-// Tapping term: 200-250ms recommended with Chordal Hold
+// Base tapping configuration
 #define TAPPING_TERM 200
+#define TAPPING_TERM_PER_KEY
 
-// Enable Chordal Hold - implements "opposite hands" rule
-// Keys on the same hand produce taps, opposite hands can produce holds
+// Chordal Hold — same-hand keys always tap, opposite-hand can hold
 #define CHORDAL_HOLD
 
-// Enable Permissive Hold - works together with Chordal Hold
-// Settles as hold when opposite-hand key is tapped (nested press)
-#define PERMISSIVE_HOLD
+// Permissive hold only for space (NAV layer), not home row mods
+#define PERMISSIVE_HOLD_PER_KEY
 
-// Disable quick tap for home row mods to prevent accidental repeats
+// Disable double-tap repeat for mod-taps
 #define QUICK_TAP_TERM 0
+
+// Performance optimizations for fast typing
+#define USB_POLLING_INTERVAL_MS 1
+#define QMK_KEYS_PER_SCAN 12
+
+// Debounce
+#define DEBOUNCE 5
+
+// Force RGB off
+#undef RGB_MATRIX_DEFAULT_MODE
+#define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_NONE
+#undef RGB_MATRIX_DEFAULT_VAL
+#define RGB_MATRIX_DEFAULT_VAL 0

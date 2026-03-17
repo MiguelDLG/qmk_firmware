@@ -52,7 +52,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_NAV] = LAYOUT_tkl_f13_ansi_tsangan(
     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, KC_UP,   _______, _______, _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______, _______, _______, _______, KC_HOME, KC_UP,   KC_END,  _______, _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, _______, _______, _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,          _______,
     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,                   _______,
     _______, _______, _______,                   _______,                                              _______, _______, _______, _______, _______, _______),
@@ -66,102 +66,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______,                   _______,                                              _______, _______, _______, _______, _______, _______),
 };
 
-// Determine which hand a key belongs to for bilateral combination filtering
-static bool is_right_hand_key(uint16_t keycode) {
-    if ((keycode >= QK_MOD_TAP && keycode <= QK_MOD_TAP_MAX) ||
-        (keycode >= QK_LAYER_TAP && keycode <= QK_LAYER_TAP_MAX)) {
-        keycode = keycode & 0xFF;
-    }
-
-    switch(keycode) {
-        case KC_Y: case KC_U: case KC_I: case KC_O: case KC_P:
-        case KC_H: case KC_J: case KC_K: case KC_L: case KC_SCLN:
-        case KC_N: case KC_M: case KC_COMM: case KC_DOT: case KC_SLSH:
-        case KC_LBRC: case KC_RBRC: case KC_QUOT: case KC_BSLS:
-        case KC_6: case KC_7: case KC_8: case KC_9: case KC_0:
-        case KC_MINS: case KC_EQL:
-        case KC_BSPC: case KC_ENT:
-        case KC_INS: case KC_HOME: case KC_PGUP:
-        case KC_DEL: case KC_END: case KC_PGDN:
-        case KC_UP: case KC_DOWN: case KC_LEFT: case KC_RGHT:
-            return true;
-        default:
-            return false;
-    }
-}
-
-// Extract the modifier bits from a mod-tap keycode
-static uint8_t get_mod_from_mod_tap(uint16_t keycode) {
-    uint8_t mod = (keycode >> 8) & 0x1F;
-    // QMK stores right-side mods with bit 4 set; convert to real mod bits
-    if (mod & 0x10) {
-        return (mod & 0x0F) << 4;
-    }
-    return mod;
-}
-
-// Bilateral combination state
-static uint16_t last_mod_timer = 0;
-static uint16_t active_mod = KC_NO;
-static bool active_mod_is_right = false;
+// Chordal Hold hand definitions
+const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
+    LAYOUT_tkl_f13_ansi_tsangan(
+        '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*',
+        'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', '*', '*', '*',
+        'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', '*', '*', '*',
+        'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R', 'R',      'R',
+        'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R',      'R',           '*',
+        'L', 'L', 'L',                '*',                          'R', 'R', 'R', '*', '*', '*'
+    );
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static uint16_t caps_timer;
-
-    bool is_mod_tap = false;
-    bool is_right_mod = false;
-
-    switch(keycode) {
-        case LGUI_T(KC_A):
-        case LALT_T(KC_S):
-        case LSFT_T(KC_D):
-        case LCTL_T(KC_F):
-            is_mod_tap = true;
-            is_right_mod = false;
-            break;
-        case RCTL_T(KC_J):
-        case RSFT_T(KC_K):
-        case RALT_T(KC_L):
-        case RGUI_T(KC_SCLN):
-            is_mod_tap = true;
-            is_right_mod = true;
-            break;
-    }
-
-    // Mod-tap key held (not tapped)
-    if (is_mod_tap && record->event.pressed && record->tap.count == 0) {
-        active_mod = keycode;
-        active_mod_is_right = is_right_mod;
-        last_mod_timer = timer_read();
-        return true;
-    }
-
-    // Mod-tap key released
-    if (is_mod_tap && !record->event.pressed) {
-        if (keycode == active_mod) {
-            active_mod = KC_NO;
-        }
-        return true;
-    }
-
-    // Bilateral combination: same-hand key pressed while a home row mod is held
-    if (!is_mod_tap && record->event.pressed && active_mod != KC_NO) {
-        bool is_right_key = is_right_hand_key(keycode);
-
-        if (is_right_key == active_mod_is_right && timer_elapsed(last_mod_timer) < TAPPING_TERM) {
-            // Unregister the modifier that QMK activated on the hold
-            uint8_t mod_bits = get_mod_from_mod_tap(active_mod);
-            unregister_mods(mod_bits);
-
-            // Send the base letter of the mod-tap key
-            tap_code16(active_mod & 0xFF);
-
-            active_mod = KC_NO;
-
-            // Let QMK process the current key normally
-            return true;
-        }
-    }
 
     // ESC on tap, Caps Lock on hold
     if (keycode == ESC_CAPS) {
