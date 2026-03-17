@@ -12,9 +12,6 @@
 #define TAPPING_TERM 200
 #define TAPPING_TERM_PER_KEY
 
-// Chordal Hold — same-hand keys always tap, opposite-hand can hold
-#define CHORDAL_HOLD
-
 // Permissive hold only for space (NAV layer), not home row mods
 #define PERMISSIVE_HOLD_PER_KEY
 

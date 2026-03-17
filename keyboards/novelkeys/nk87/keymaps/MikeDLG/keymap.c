@@ -66,17 +66,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______,                   _______,                                              _______, _______, _______, _______, _______, _______),
 };
 
-// Chordal Hold hand definitions
-const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
-    LAYOUT_tkl_f13_ansi_tsangan(
-        '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*',
-        'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', '*', '*', '*',
-        'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', '*', '*', '*',
-        'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R', 'R',      'R',
-        'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R',      'R',           '*',
-        'L', 'L', 'L',                '*',                          'R', 'R', 'R', '*', '*', '*'
-    );
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static uint16_t caps_timer;
 
